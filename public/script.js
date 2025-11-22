@@ -1,11 +1,7 @@
-
 const socket = io(); 
 
-
 const COLUNAS_SORTEIO = { 'B': [], 'I': [], 'N': [], 'G': [], 'O': [] };
-const CONTAINER_PLACARES = document.getElementById('placar-sorteio'); 
-
-
+const CONTAINER_PLACARES = document.getElementById('placar-sorteio');
 
 class SorteadorBingo {
     #qtdNumeros; #qtdBolinhasSorteadas; #bolinhasSortadas; #numeros;
@@ -129,7 +125,6 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
                 const classeInicial = isFree ? 'marcado' : 'nao-marcado'; 
                 const displayValue = isFree ? '💖' : valor;
                 
-                
                 const dataNumero = isFree ? '0' : valor; 
                 
                 const eventListener = `onclick="toggleMarcacao(this)"`; 
@@ -155,7 +150,6 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
         let quinaEncontrada = false;
         let totalMarcado = 0;
         
-        
         for (let i = 0; i < 5; i++) {
             let acertosLinha = 0;
             let acertosColuna = 0;
@@ -164,17 +158,14 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
                 const linhaCellId = `${ID_BASE}-${letras[j]}-${i}`;
                 const colunaCellId = `${ID_BASE}-${letras[i]}-${j}`;
                 
-                
                 const valLinha = cartela[letras[j]][i];
                 if (isMarcado(valLinha, linhaCellId)) { acertosLinha++; }
 
-                
                 const valColuna = cartela[letras[i]][j];
                 if (isMarcado(valColuna, colunaCellId)) { acertosColuna++; }
             }
             if (acertosLinha === 5 || acertosColuna === 5) { quinaEncontrada = true; }
         }
-        
         
         for (let i = 0; i < 5; i++) {
             for (let j = 0; j < 5; j++) {
@@ -186,7 +177,6 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
             }
         }
 
-       
         let acertosDiagPrincipal = 0;
         let acertosDiagSecundaria = 0;
         for (let i = 0; i < 5; i++) {
@@ -198,9 +188,8 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
         }
         if (acertosDiagPrincipal === 5 || acertosDiagSecundaria === 5) { quinaEncontrada = true; }
 
-        
         if (bingoInstance.tipoVitoriaIndice === 0) { 
-            if (totalMarcado >= 25) {
+            if (totalMarcado >= 25) { 
                 return { tipo: "Bingo", detalhe: "Cartela Completa" };
             }
             if (quinaEncontrada) {
@@ -213,19 +202,19 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
 }
 
 
-
 let idiomaAtual = 'pt-br'; 
 let cartelaCounter = 1; 
 let modoDePartida = 'manual';
+let sorteioPausado = false; 
 
 const bingo = new SorteadorBingoBrasileiro();
 const ID_PRIMEIRA_CARTELA = "cartela-exemplo-id"; 
 const BINGO_CARTELA_DATA = SorteadorBingoBrasileiro.gerarCartela(null); 
 const CARTELA_EXEMPLO = SorteadorBingoBrasileiro.montarCartelaHTML(BINGO_CARTELA_DATA, ID_PRIMEIRA_CARTELA); 
 
-
 let btnIniciarSorteioTimer = null; 
 let btnReiniciar = null; 
+let btnPauseResume = null; 
 let btnAddCartela = null; 
 let numeroSorteadoDisplay = null;
 let cartelasAgrupadasDiv = null;
@@ -233,7 +222,6 @@ let tipoVitoriaAtualSpan = null;
 let notificacaoToast = null;
 let notificacaoMensagem = null;
 let placarMultiplayerDiv = null; 
-
 
 
 const TRADUCOES = {
@@ -269,15 +257,12 @@ function mostrarNotificacao(mensagem, tipo) {
     }
 }
 
-
 function obterNumerosMarcadosParaValidacao() {
     const numerosMarcados = [];
-    
     
     document.querySelectorAll('.cartela-celula.marcado').forEach(cell => {
         const dataNumero = cell.getAttribute('data-numero');
         
-       
         if (dataNumero !== '0') {
             const num = parseInt(dataNumero); 
             if (!isNaN(num)) {
@@ -289,39 +274,27 @@ function obterNumerosMarcadosParaValidacao() {
 }
 
 
-
 window.toggleMarcacao = function(cellElement) {
-     
     const numeroCelulaStr = cellElement.dataset.numero;
     const numeroCelula = parseInt(numeroCelulaStr);
 
-   
     if (numeroCelula === 0) return; 
 
     if (modoDePartida === 'manual') {
-        
         const numerosSorteados = bingo.bolinhasSortadas; 
-        
-        
         const numeroFoiSorteado = numerosSorteados.includes(numeroCelula);
-        
         
         if (cellElement.classList.contains('marcado')) {
             cellElement.classList.remove('marcado');
             
         } else {
-           
-            
             if (numeroFoiSorteado) {
-               
                 cellElement.classList.add('marcado');
             } else {
-                
                 mostrarNotificacao(`ERRO: O número ${numeroCelula} ainda não foi sorteado e não pode ser marcado.`, 'alerta');
                 return; 
             }
         }
-        
         
         const cartelaElemento = cellElement.closest('.cartela-exemplo');
         if (cartelaElemento) {
@@ -333,15 +306,12 @@ window.toggleMarcacao = function(cellElement) {
 }
 
 
-
-
 function renderizarPlacarSorteio(colunas) {
+    const CONTAINER_PLACARES = document.getElementById('placar-sorteio'); 
     if (!CONTAINER_PLACARES) return;
-    
     
     CONTAINER_PLACARES.innerHTML = ''; 
 
-    
     const placarHTML = document.createElement('div');
     placarHTML.className = 'placar-bingo-container'; 
     
@@ -355,7 +325,6 @@ function renderizarPlacarSorteio(colunas) {
         titulo.textContent = letra;
         colunaDiv.appendChild(titulo);
 
-       
         colunas[letra].slice().sort((a, b) => a - b).forEach(num => {
             const numSpan = document.createElement('span');
             numSpan.textContent = num;
@@ -366,9 +335,12 @@ function renderizarPlacarSorteio(colunas) {
     });
     
     CONTAINER_PLACARES.appendChild(placarHTML);
+    
+    const countChamadosSpan = document.getElementById('countChamados');
+    if (countChamadosSpan) {
+        countChamadosSpan.textContent = `(${bingo.qtdBolinhasSorteadas}/75)`;
+    }
 }
-
-
 
 
 function marcarECarregarCartela(cartelaElemento) {
@@ -390,19 +362,15 @@ function marcarECarregarCartela(cartelaElemento) {
         } else if (resultadoVitoria.tipo === "Bingo") {
             cartelaElemento.classList.add('efeito-bingo');
             
-            
             mostrarNotificacao(TRADUCOES[idiomaAtual].BINGO_MSG, 'bingo'); 
-            
             
             const numerosMarcados = obterNumerosMarcadosParaValidacao(); 
             socket.emit('alegarVitoria', numerosMarcados);
-            
             
             if (btnIniciarSorteioTimer) {
                 btnIniciarSorteioTimer.disabled = true; 
             }
         }
-        
         
         if (mostrarQuina) {
             if (!cartelaElemento.dataset.quinaNotificada) {
@@ -449,7 +417,6 @@ function renderPlacar() {
         btnIniciarSorteioTimer.disabled = true;
     }
     
-    
     renderizarPlacarSorteio(COLUNAS_SORTEIO);
 }
 
@@ -493,12 +460,11 @@ function adicionarNovaCartela() {
 }
 
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
     
     btnIniciarSorteioTimer = document.getElementById('btnIniciarSorteioTimer');
     btnReiniciar = document.getElementById('btnReiniciar'); 
+    btnPauseResume = document.getElementById('btnPauseResume'); 
     btnAddCartela = document.getElementById('btnAddCartela'); 
     numeroSorteadoDisplay = document.querySelector('.numero-sorteado');
     cartelasAgrupadasDiv = document.querySelector('.cartelas-agrupadas');
@@ -515,18 +481,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const salaPrivadaRadio = document.getElementById('salaPrivada');
     const salaIDGroup = document.getElementById('salaIDGroup');
 
-    
     document.querySelectorAll('input[name="tipoSala"]').forEach(radio => {
         radio.addEventListener('change', () => {
             salaIDGroup.style.display = salaPrivadaRadio.checked ? 'block' : 'none';
         });
     });
 
-    
     if (cartelasAgrupadasDiv) {
         cartelasAgrupadasDiv.innerHTML = CARTELA_EXEMPLO; 
     }
-    
     
     if (formInicio) {
         formInicio.addEventListener('submit', (event) => {
@@ -541,10 +504,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            
             menuInicialDiv.style.display = 'none';
             jogoPrincipalDiv.style.display = 'flex'; 
-            
             
             socket.emit('entrarSala', { 
                 nome: nomeUsuario, 
@@ -553,7 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 tipoPartida: modoDePartida
             });
 
-            
             renderHeader(); 
             if (tipoVitoriaAtualSpan) {
                 tipoVitoriaAtualSpan.textContent = bingo.tipoVitoria;
@@ -561,11 +521,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-   
-    
     socket.on('estadoAtual', (estado) => {
         bingo.bolinhasSortadas = estado.numeros;
-        
         
         Object.keys(COLUNAS_SORTEIO).forEach(k => COLUNAS_SORTEIO[k].length = 0);
         
@@ -574,23 +531,25 @@ document.addEventListener('DOMContentLoaded', () => {
             COLUNAS_SORTEIO[letra].push(num);
         });
 
-        
         cartelasAgrupadasDiv.innerHTML = SorteadorBingoBrasileiro.montarCartelaHTML(BINGO_CARTELA_DATA, ID_PRIMEIRA_CARTELA); 
         
         renderPlacar();
         renderizarTodasCartelas(); 
         renderHeader();
+
+        sorteioPausado = estado.sorteioPausado;
+        if (btnPauseResume) {
+             btnPauseResume.textContent = sorteioPausado ? 'Retomar Sorteio' : 'Pausar Sorteio';
+        }
     });
 
     socket.on('novoNumero', (dados) => {
         bingo.bolinhasSortadas = dados.todos; 
         
-       
         if(dados.letra && dados.numero) {
             COLUNAS_SORTEIO[dados.letra].push(dados.numero);
             mostrarNotificacao(TRADUCOES[idiomaAtual].CHAMANDO(dados.letra, dados.numero), 'alerta');
         } else {
-             
              const letraLocal = bingo.encontrarLetra(dados.numero);
              COLUNAS_SORTEIO[letraLocal].push(dados.numero);
              mostrarNotificacao(TRADUCOES[idiomaAtual].CHAMANDO(letraLocal, dados.numero), 'alerta');
@@ -611,10 +570,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPlacarMultiplayer(placar);
     });
     
-   
     socket.on('avisoTimer', (mensagem) => {
         mostrarNotificacao(mensagem, 'quina');
-       
         if (mensagem.includes('ERRO!')) {
             if (btnIniciarSorteioTimer) {
                  btnIniciarSorteioTimer.disabled = false;
@@ -622,13 +579,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    socket.on('sorteioPausado', () => {
+        sorteioPausado = true;
+        if (btnPauseResume) btnPauseResume.textContent = 'Retomar Sorteio';
+        mostrarNotificacao('⏸️ Sorteio pausado.', 'alerta');
+    });
     
-  
+    socket.on('sorteioRetomado', () => {
+        sorteioPausado = false;
+        if (btnPauseResume) btnPauseResume.textContent = 'Pausar Sorteio';
+        mostrarNotificacao('▶️ Sorteio retomado.', 'quina');
+    });
+    
+
     if (btnIniciarSorteioTimer) {
         btnIniciarSorteioTimer.addEventListener('click', () => {
             socket.emit('iniciarSorteioAutomatico'); 
             btnIniciarSorteioTimer.disabled = true; 
             mostrarNotificacao("⏳ Sorteio de 8s iniciado! Marque sua cartela.", 'quina');
+        });
+    }
+
+    if (btnPauseResume) {
+        btnPauseResume.addEventListener('click', () => {
+            if (!sorteioPausado) {
+                socket.emit('pausarSorteio');
+            } else {
+                socket.emit('retomarSorteio');
+            }
         });
     }
 
@@ -643,7 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnAddCartela) {
         btnAddCartela.addEventListener('click', adicionarNovaCartela);
     }
-    
     
     if (tipoVitoriaAtualSpan) {
          tipoVitoriaAtualSpan.textContent = bingo.tipoVitoria;
