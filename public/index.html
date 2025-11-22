@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heartbeat Bingo ❤️</title>
+    <title>Heartbeat Bingo! - Multiplayer</title>
     
     <link rel="stylesheet" href="/style.css"> 
     
@@ -49,10 +49,19 @@
             <p>Modo: Manual - Vitória: <span id="tipo-vitoria-atual">Quina e Bingo</span></p>
         </form>
     </div>
+
+
     <div id="jogoPrincipal" class="game-container" style="display: none;">
         
         <section class="game-left-panel">
             
+            <div class="visor-sorteador visor-lateral">
+                <h3>Último Sorteio</h3>
+                <div class="display-sorteio">
+                    <span class="numero-sorteado">--</span>
+                </div>
+            </div>
+
             <div class="controles-jogo">
                 <button id="btnIniciarSorteioTimer" class="btn-control">Iniciar Sorteio Cronometrado (8s)</button>
                 <button id="btnPauseResume" class="btn-control btn-secondary">Pausar Sorteio</button> 
@@ -63,36 +72,27 @@
                     Modo: Manual - Vitória: <span id="tipo-vitoria-atual">Quina e Bingo</span>
                 </p>
             </div>
+            
+            <div class="area-placar-sorteio placar-lateral">
+                <h2>Números Sorteados <span id="countChamados">(0/75)</span></h2>
+                <div id="placar-sorteio" class="placar-bingo-container-externo">
+                </div>
+            </div>
+            
         </section>
         
-        <section class="game-center-panel">
-            
-            <div class="visor-e-placar-container">
-                
-                <div class="visor-sorteador visor-central">
-                    <h3>Último Sorteio</h3>
-                    <div class="display-sorteio">
-                        <span class="numero-sorteado">--</span>
-                    </div>
-                </div>
-
-                <div class="area-placar-sorteio">
-                    <h2>Números Sorteados <span id="countChamados">(0/75)</span></h2>
-                    <div id="placar-sorteio" class="placar-bingo-container-externo">
-                        </div>
-                </div>
-                
-            </div>
+        <section class="game-center-panel cartelas-panel">
             <h2 class="titulo-cartelas">Suas Cartelas</h2>
             <div class="cartelas-agrupadas">
-                </div>
+            </div>
         </section>
 
     </div>
+
     <div id="notificacao-vitoria" class="notificacao-toast">
         <span id="notificacao-mensagem"></span>
     </div>
 
-    <script src="/script.js?v=4"></script>
+    <script src="/script.js?v=5"></script>
 </body>
 </html>
