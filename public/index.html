@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💖 Heartbeat Bingo! 💖</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+
+    <div id="notificacao-vitoria" class="notificacao-vitoria">
+        <span id="notificacao-mensagem"></span>
+    </div>
+
+    <div id="menuInicial" class="menu-container">
+        <h2 id="titulo-menu">💖 Heartbeat Bingo! 💖</h2>
+
+        <form id="formInicio">
+            <h3 style="margin-bottom: 20px; color: var(--cor-texto-escuro);">Configurar Partida</h3>
+            
+            <div class="input-group">
+                <label for="inputNome">Seu Nickname:</label>
+                <input type="text" id="inputNome" required placeholder="Ex: Player Fofo">
+            </div>
+
+            <div class="input-group" style="margin-top: 20px;">
+                <label>Tipo de Sala:</label>
+                <div class="radio-group">
+                    <input type="radio" id="salaPublica" name="tipoSala" value="publica" checked>
+                    <label for="salaPublica">Pública</label>
+                    <input type="radio" id="salaPrivada" name="tipoSala" value="privada">
+                    <label for="salaPrivada">Privada</label>
+                </div>
+            </div>
+
+            <div class="input-group" id="salaIDGroup" style="display: none; margin-top: 10px;">
+                <label for="inputSalaID">ID da Sala Privada (4 letras):</label>
+                <input type="text" id="inputSalaID" maxlength="4" placeholder="Ex: HBTB">
+            </div>
+            
+            <input type="hidden" name="modoPartida" value="manual">
+
+            <button type="submit" id="btnIniciarJogo">JOGAR!</button>
+        </form>
+    </div>
+
+    <div id="jogoPrincipal" style="display:none;">
+        
+        <div class="bingo-container">
+            <header class="game-header">
+                <h1 id="titulo-jogo">💖 Heartbeat Bingo! 💖</h1>
+                <div class="placar-top">
+                    <h3>🏆 Placar do Jogo</h3>
+                    <div id="placar-multiplayer">
+                        </div>
+                </div>
+            </header>
+
+            <main class="game-main-area">
+                
+                <section class="game-left-panel">
+                    <div class="visor-sorteador">
+                        <h3>Último Sorteio</h3>
+                        <div class="display-sorteio">
+                            <span class="numero-sorteado">--</span>
+                        </div>
+                        
+                        <button id="btnIniciarSorteioTimer" class="btn-iniciar-timer">
+                            Iniciar Sorteio Cronometrado (8s)
+                        </button>
+                        <button id="btnReiniciar">Reiniciar/Sair</button>
+                        
+                        <hr style="margin: 15px 0;">
+                        
+                        <h3>Opções</h3>
+                        <button class="btn-add-cartela" id="btnAddCartela">Adicionar Cartela</button>
+                        <p style="margin-top: 10px;">Modo: Manual - Vitória: <span id="tipo-vitoria-atual">Quina e Bingo</span></p>
+                    </div> 
+                </section>
+
+                <section class="game-center-panel">
+                    <h2>Suas Cartelas</h2>
+                    <div class="cartelas-agrupadas">
+                        </div>
+                    
+                    <div id="visorChamadosContainer" class="visor-chamados-integrado">
+                        <h3>Números Sorteados (<span id="countChamados">0</span>/75)</h3>
+                        <div id="visorNumerosChamados" class="visor-chamados-grid">
+                            </div>
+                    </div>
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
