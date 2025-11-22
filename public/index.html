@@ -3,101 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💖 Heartbeat Bingo! 💖</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="favicon.png">
+    <title>Heartbeat Bingo! - Multiplayer</title>
+    
+    <link rel="stylesheet" href="/style.css"> 
+    
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
-    <div id="notificacao-vitoria" class="notificacao-vitoria">
-        <span id="notificacao-mensagem"></span>
-    </div>
+    <header class="main-header">
+        <h1 id="titulo-jogo">Heartbeat Bingo!</h1>
+        <div class="player-info">
+            <div id="placar-multiplayer">
+                <table>
+                    <thead><tr><th>Nome</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>Você</td><td>Aguardando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </header>
 
     <div id="menuInicial" class="menu-container">
-        <h2 id="titulo-menu">💖 Heartbeat Bingo! 💖</h2>
-
-        <form id="formInicio">
-            <h3 style="margin-bottom: 20px; color: var(--cor-texto-escuro);">Configurar Partida</h3>
+        <h2>Entrar no Heartbeat Bingo!</h2>
+        <form id="formInicio" class="form-inicio">
             
-            <div class="input-group">
-                <label for="inputNome">Seu Nickname:</label>
-                <input type="text" id="inputNome" required placeholder="Ex: Player Fofo">
-            </div>
+            <label for="inputNome">Seu Nome:</label>
+            <input type="text" id="inputNome" required placeholder="Digite seu nome de jogador">
 
-            <div class="input-group" style="margin-top: 20px;">
-                <label>Tipo de Sala:</label>
-                <div class="radio-group">
-                    <input type="radio" id="salaPublica" name="tipoSala" value="publica" checked>
-                    <label for="salaPublica">Pública</label>
-                    <input type="radio" id="salaPrivada" name="tipoSala" value="privada">
-                    <label for="salaPrivada">Privada</label>
-                </div>
-            </div>
-
-            <div class="input-group" id="salaIDGroup" style="display: none; margin-top: 10px;">
-                <label for="inputSalaID">ID da Sala Privada (4 letras):</label>
-                <input type="text" id="inputSalaID" maxlength="4" placeholder="Ex: HBTB">
+            <div class="radio-group">
+                <input type="radio" id="salaPublica" name="tipoSala" value="publica" checked>
+                <label for="salaPublica">Sala Pública (Automático)</label><br>
+                
+                <input type="radio" id="salaPrivada" name="tipoSala" value="privada">
+                <label for="salaPrivada">Sala Privada (Entrar/Criar)</label>
             </div>
             
-            <input type="hidden" name="modoPartida" value="manual">
+            <div id="salaIDGroup" style="display: none;">
+                <label for="inputSalaID">ID da Sala Privada:</label>
+                <input type="text" id="inputSalaID" placeholder="Ex: AMOR123">
+            </div>
 
-            <button type="submit" id="btnIniciarJogo">JOGAR!</button>
+            <button type="submit" class="btn-primary">Iniciar Jogo</button>
+            <p>Modo: Manual - Vitória: <span id="tipo-vitoria-atual">Quina e Bingo</span></p>
         </form>
     </div>
 
-    <div id="jogoPrincipal" style="display:none;">
+    <div id="jogoPrincipal" class="game-container" style="display: none;">
         
-        <div class="bingo-container">
-            <header class="game-header">
-                <h1 id="titulo-jogo">💖 Heartbeat Bingo! 💖</h1>
-                <div class="placar-top">
-                    <h3>🏆 Placar do Jogo</h3>
-                    <div id="placar-multiplayer">
-                        </div>
+        <section class="game-left-panel">
+            
+            <div class="visor-sorteador">
+                <h3>Último Sorteio</h3>
+                <div class="display-sorteio">
+                    <span class="numero-sorteado">--</span>
                 </div>
-            </header>
-
-            <main class="game-main-area">
+            </div>
+            
+            <div class="controles-jogo">
+                <button id="btnIniciarSorteioTimer" class="btn-control">Iniciar Sorteio Cronometrado (8s)</button>
+                <button id="btnReiniciar" class="btn-control btn-secondary">Reiniciar/Sair</button>
+                <button id="btnAddCartela" class="btn-control btn-add">Adicionar Cartela</button>
                 
-                <section class="game-left-panel">
-                    <div class="visor-sorteador">
-                        <h3>Último Sorteio</h3>
-                        <div class="display-sorteio">
-                            <span class="numero-sorteado">--</span>
-                        </div>
-                        
-                        <button id="btnIniciarSorteioTimer" class="btn-iniciar-timer">
-                            Iniciar Sorteio Cronometrado (8s)
-                        </button>
-                        <button id="btnReiniciar">Reiniciar/Sair</button>
-                        
-                        <hr style="margin: 15px 0;">
-                        
-                        <h3>Opções</h3>
-                        <button class="btn-add-cartela" id="btnAddCartela">Adicionar Cartela</button>
-                        <p style="margin-top: 10px;">Modo: Manual - Vitória: <span id="tipo-vitoria-atual">Quina e Bingo</span></p>
-                    </div> 
-                </section>
-
-                <section class="game-center-panel">
-                    <h2>Suas Cartelas</h2>
-                    <div class="cartelas-agrupadas">
-                        </div>
-                    
-                    <div id="visorChamadosContainer" class="visor-chamados-integrado">
-                        <h3>Números Sorteados (<span id="countChamados">0</span>/75)</h3>
-                        <div id="visorNumerosChamados" class="visor-chamados-grid">
-                            </div>
+                <p class="game-mode-info">
+                    Modo: Manual - Vitória: <span id="tipo-vitoria-atual">Quina e Bingo</span>
+                </p>
+            </div>
+        </section>
+        
+        <section class="game-center-panel">
+            
+            <div class="area-placar-sorteio">
+                <h2>Números Sorteados <span id="countChamados">(0/75)</span></h2>
+                
+                <div id="placar-sorteio" class="placar-bingo-container-externo">
                     </div>
-                </section>
-
-            </main>
-
-        </div>
+            </div>
+            
+            <h2>Suas Cartelas</h2>
+            <div class="cartelas-agrupadas">
+                </div>
+        </section>
 
     </div>
-    
-    <script src="/socket.io/socket.io.js?v=3"></script>
-    <script src="/script.js?v=3"></script>
+    <div id="notificacao-vitoria" class="notificacao-toast">
+        <span id="notificacao-mensagem"></span>
+    </div>
+
+    <script src="/script.js?v=4"></script>
 </body>
 </html>
