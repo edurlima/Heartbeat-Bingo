@@ -1,5 +1,3 @@
-// server.js (Versão Final com Correção de Validação)
-
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -8,199 +6,266 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const NUM_MAXIMO_BOLINHAS = 75;
-const INTERVALO_SORTEIO = 5000;
+app.use(express.static('public'));
+
+class SorteadorBingo {
+    #qtdNumeros; #qtdBolinhasSorteadas; #bolinhasSortadas; #numeros;
+    #qtdBolinhasNaoSortadas; #ultimoNumeroSorteado; #todosNumerosSortadas;
+
+    constructor(qtdNumeros) {
+        this.#qtdNumeros = qtdNumeros;
+        this.#qtdBolinhasSorteadas = 0;
+        this.#bolinhasSortadas = [];
+        this.#numeros = Array.from({ length: qtdNumeros }, (_, i) => i + 1);
+        this.#qtdBolinhasNaoSortadas = qtdNumeros;
+        this.#ultimoNumeroSorteado = null;
+        this.#todosNumerosSortadas = false;
+    }
+
+    get qtdNumeros() { return this.#qtdNumeros; }
+    get bolinhasSortadas() { return [...this.#bolinhasSortadas].sort((a, b) => a - b); }
+    get ultimoNumeroSorteado() { return this.#ultimoNumeroSorteado; }
+    get todosNumerosSortadas() { return this.#todosNumerosSortadas; }
+
+    encontrarLetra(numero) {
+        const letrasBingo = {
+            'B': [1, 15], 'I': [16, 30], 'N': [31, 45], 'G': [46, 60], 'O': [61, 75]
+        };
+        for (const letra in letrasBingo) {
+            const [min, max] = letrasBingo[letra];
+            if (numero >= min && numero <= max) {
+                return letra;
+            }
+        }
+        return "ERRO";
+    }
+
+    sortearNumero() {
+        if (this.#qtdBolinhasNaoSortadas === 0) {
+            this.#todosNumerosSortadas = true;
+            return null;
+        }
+
+        const disponiveis = this.#numeros.filter(num => !this.#bolinhasSortadas.includes(num));
+        if (disponiveis.length === 0) {
+            this.#todosNumerosSortadas = true;
+            return null;
+        }
+
+        const indiceSorteado = Math.floor(Math.random() * disponiveis.length);
+        const numeroSorteado = disponiveis[indiceSorteado];
+        
+        this.#bolinhasSortadas.push(numeroSorteado);
+        this.#qtdBolinhasSorteadas = this.#bolinhasSortadas.length;
+        this.#qtdBolinhasNaoSortadas = this.#qtdNumeros - this.#qtdBolinhasSorteadas;
+        this.#ultimoNumeroSorteado = numeroSorteado;
+
+        return {
+            numero: numeroSorteado,
+            letra: this.encontrarLetra(numeroSorteado),
+            todos: this.bolinhasSortadas
+        };
+    }
+
+    reiniciar() {
+        this.#qtdBolinhasSorteadas = 0;
+        this.#bolinhasSortadas = [];
+        this.#qtdBolinhasNaoSortadas = this.#qtdNumeros;
+        this.#ultimoNumeroSorteado = null;
+        this.#todosNumerosSortadas = false;
+    }
+    
+    verificarNumerosVencedores(numerosAlegados) {
+        if (!numerosAlegados || numerosAlegados.length === 0) {
+            return false;
+        }
+        
+        const sorteadosSet = new Set(this.bolinhasSortadas);
+        for (const num of numerosAlegados) {
+            if (!sorteadosSet.has(num)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
 
 const salas = {};
 
-function gerarNovoNumero(numerosSorteados) {
-    const todos = Array.from({ length: NUM_MAXIMO_BOLINHAS }, (_, i) => i + 1);
-    const naoSorteados = todos.filter(num => !numerosSorteados.includes(num));
+function criarSala(salaID) {
+    if (!salas[salaID]) {
+        salas[salaID] = {
+            bingo: new SorteadorBingo(75),
+            jogadores: [],
+            intervaloDeSorteio: null,
+            sorteioEmAndamento: false,
+            sorteioPausado: false,
+            vencedores: new Set(),
+            contadorBingo: 0
+        };
+    }
+    return salas[salaID];
+}
 
-    if (naoSorteados.length === 0) {
-        return null;
+function montarPlacar(sala) {
+    return sala.jogadores.map(jogador => ({
+        nome: jogador.nome,
+        status: jogador.vencedor ? 'BINGO! VENCEDOR' : 'Em Jogo'
+    }));
+}
+
+function sortearProximoNumero(io, salaID) {
+    const sala = salas[salaID];
+    if (!sala || sala.bingo.todosNumerosSortadas || sala.sorteioPausado) {
+        return;
     }
 
-    const indiceAleatorio = Math.floor(Math.random() * naoSorteados.length);
-    return naoSorteados[indiceAleatorio];
-}
+    const resultado = sala.bingo.sortearNumero();
 
-function atualizarPlacar(salaId) {
-    const sala = salas[salaId];
-    if (!sala) return;
-    
-    const placarData = sala.jogadores.map(jogador => ({
-        nome: jogador.nome,
-        status: jogador.status || 'Jogando',
-        id: jogador.id
-    }));
-    
-    io.to(salaId).emit('placarAtualizado', placarData);
-}
-
-// 🚨 NOVO: Organiza o número sorteado por coluna (B-I-N-G-O)
-function getLetra(numero) {
-    if (numero >= 1 && numero <= 15) return 'B';
-    if (numero >= 16 && numero <= 30) return 'I';
-    if (numero >= 31 && numero <= 45) return 'N';
-    if (numero >= 46 && numero <= 60) return 'G';
-    if (numero >= 61 && numero <= 75) return 'O';
-    return '';
-}
-
-function sortearProximoNumero(salaId) {
-    const sala = salas[salaId];
-    if (!sala) return;
-
-    const novoNumero = gerarNovoNumero(sala.numeros);
-
-    if (novoNumero !== null) {
-        sala.numeros.push(novoNumero);
-        console.log(`[Sala ${salaId}] Novo número sorteado: ${novoNumero}`);
-        
-        // 🚨 ENVIA O NÚMERO E A LETRA PARA O CLIENTE
-        io.to(salaId).emit('novoNumero', {
-            numero: novoNumero,
-            letra: getLetra(novoNumero), // <--- NOVO
-            todos: sala.numeros
-        });
-        
-        atualizarPlacar(salaId);
-
+    if (resultado) {
+        io.to(salaID).emit('novoNumero', resultado);
     } else {
-        io.to(salaId).emit('fimDeJogo', 'FIM DE JOGO! Todas as 75 bolinhas foram sorteadas.');
-        if (sala.timerSorteio) {
-            clearInterval(sala.timerSorteio);
-            sala.timerSorteio = null;
+        clearInterval(sala.intervaloDeSorteio);
+        sala.intervaloDeSorteio = null;
+        sala.sorteioEmAndamento = false;
+        io.to(salaID).emit('fimDeJogo', "FIM DE JOGO! Todos os números foram sorteados.");
+    }
+}
+
+function iniciarSorteioAutomatico(io, salaID) {
+    const sala = salas[salaID];
+    if (!sala || sala.sorteioEmAndamento || sala.sorteioPausado) return;
+
+    sala.sorteioEmAndamento = true;
+    sala.sorteioPausado = false;
+
+    sortearProximoNumero(io, salaID); 
+
+    sala.intervaloDeSorteio = setInterval(() => {
+        sortearProximoNumero(io, salaID);
+    }, 8000);
+
+    io.to(salaID).emit('avisoTimer', "Sorteio automático iniciado. Novo número a cada 8 segundos.");
+}
+
+function pausarSorteio(io, salaID) {
+    const sala = salas[salaID];
+    if (!sala || !sala.sorteioEmAndamento || sala.sorteioPausado) return;
+
+    sala.sorteioPausado = true;
+    io.to(salaID).emit('sorteioPausado');
+}
+
+function retomarSorteio(io, salaID) {
+    const sala = salas[salaID];
+    if (!sala || !sala.sorteioEmAndamento || !sala.sorteioPausado) return;
+
+    sala.sorteioPausado = false;
+    io.to(salaID).emit('sorteioRetomado');
+}
+
+function removerJogador(socket, salaID) {
+    if (salas[salaID]) {
+        const sala = salas[salaID];
+        sala.jogadores = sala.jogadores.filter(p => p.id !== socket.id);
+        
+        io.to(salaID).emit('placarAtualizado', montarPlacar(sala));
+        
+        if (sala.jogadores.length === 0) {
+            clearInterval(sala.intervaloDeSorteio);
+            delete salas[salaID];
+            console.log(`Sala ${salaID} fechada.`);
         }
     }
 }
 
 io.on('connection', (socket) => {
-    let salaId;
-    let usuario = {};
+    let salaID = null;
 
     socket.on('entrarSala', (dados) => {
-        usuario = dados;
-        
-        if (dados.tipoSala === 'privada' && dados.salaID) {
-            salaId = dados.salaID;
+        const nome = dados.nome;
+        let tipoSala = dados.tipoSala;
+        let idSolicitado = dados.salaID;
+
+        if (tipoSala === 'publica') {
+            const salasPublicas = Object.keys(salas).filter(id => id.startsWith('PUBLIC_') && salas[id].jogadores.length < 10);
+            if (salasPublicas.length > 0) {
+                salaID = salasPublicas[0];
+            } else {
+                salaID = `PUBLIC_${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+                criarSala(salaID);
+            }
         } else {
-            salaId = 'SALA_PUBLICA';
+            salaID = idSolicitado || `PRIVATE_${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+            if (!salas[salaID]) {
+                criarSala(salaID);
+            }
         }
 
-        socket.join(salaId);
+        const sala = salas[salaID];
+        socket.join(salaID);
 
-        if (!salas[salaId]) {
-            salas[salaId] = {
-                numeros: [],
-                jogadores: [],
-                hostId: socket.id,
-                tipoPartida: dados.tipoPartida,
-                timerSorteio: null
-            };
-            console.log(`[Sala ${salaId}] Nova sala criada. Host: ${dados.nome}`);
-        }
-        
-        salas[salaId].jogadores.push({ id: socket.id, nome: dados.nome, status: 'Jogando' });
-        
-        console.log(`[Sala ${salaId}] ${dados.nome} entrou.`);
-        
-        socket.emit('estadoAtual', { 
-            numeros: salas[salaId].numeros,
-            tipoPartida: salas[salaId].tipoPartida
+        const jogador = { id: socket.id, nome: nome, vencedor: false };
+        sala.jogadores.push(jogador);
+
+        io.to(salaID).emit('placarAtualizado', montarPlacar(sala));
+
+        socket.emit('estadoAtual', {
+            numeros: sala.bingo.bolinhasSortadas,
+            sorteioPausado: sala.sorteioPausado
         });
-        
-        io.to(salaId).emit('avisoTimer', `${dados.nome} entrou na sala!`);
-        atualizarPlacar(salaId);
     });
 
     socket.on('iniciarSorteioAutomatico', () => {
-        const sala = salas[salaId];
-        if (!sala || socket.id !== sala.hostId || sala.timerSorteio) return; 
-        
-        sortearProximoNumero(salaId);
+        if (salaID) {
+            iniciarSorteioAutomatico(io, salaID);
+        }
+    });
 
-        sala.timerSorteio = setInterval(() => {
-            io.to(salaId).emit('avisoTimer', `Próximo número em ${INTERVALO_SORTEIO / 1000} segundos!`);
-            
-            setTimeout(() => {
-                sortearProximoNumero(salaId);
-            }, 100); 
+    socket.on('pausarSorteio', () => {
+        if (salaID) {
+            pausarSorteio(io, salaID);
+        }
+    });
 
-        }, INTERVALO_SORTEIO);
-        
-        console.log(`[Sala ${salaId}] Sorteio cronometrado iniciado (${INTERVALO_SORTEIO / 1000}s).`);
-        io.to(salaId).emit('avisoTimer', `Sorteio iniciado! Bolinhas a cada ${INTERVALO_SORTEIO / 1000} segundos.`);
+    socket.on('retomarSorteio', () => {
+        if (salaID) {
+            retomarSorteio(io, salaID);
+        }
     });
     
-    // 🚨 CORREÇÃO DE VALIDAÇÃO: Agora recebe os números marcados do cliente
-    socket.on('alegarVitoria', (numerosMarcadosDoCliente) => {
-        const sala = salas[salaId];
-        
-        if (!sala || !sala.timerSorteio) return; 
-        
-        const numerosSorteados = sala.numeros;
+    socket.on('alegarVitoria', (numerosAlegados) => {
+        if (!salaID) return;
 
-        // VALIDAÇÃO: Verifica se TODOS os números marcados pelo cliente foram sorteados
-        const isBingoValido = numerosMarcadosDoCliente.every(num => numerosSorteados.includes(num));
+        const sala = salas[salaID];
+        if (!sala) return;
 
-        if (!isBingoValido) {
-            socket.emit('avisoTimer', 'ERRO! O Bingo não é válido. Verifique sua cartela e continue jogando.');
-            return;
-        }
-        
-        // SE CHEGOU AQUI, O BINGO É VÁLIDO
-        const jogador = sala.jogadores.find(j => j.id === socket.id);
-        if (jogador) {
-            jogador.status = 'VENCEDOR: BINGO! 🏆';
+        const jogadorIndex = sala.jogadores.findIndex(p => p.id === socket.id);
+        if (jogadorIndex === -1 || sala.jogadores[jogadorIndex].vencedor) return;
+
+        const isValid = sala.bingo.verificarNumerosVencedores(numerosAlegados);
+
+        if (isValid) {
+            sala.jogadores[jogadorIndex].vencedor = true;
+            sala.vencedores.add(socket.id);
+            sala.contadorBingo++;
             
-            if (sala.timerSorteio) {
-                clearInterval(sala.timerSorteio);
-                sala.timerSorteio = null;
-            }
+            io.to(salaID).emit('placarAtualizado', montarPlacar(sala));
+            io.to(salaID).emit('avisoTimer', `BINGO VALIDADO! ${sala.jogadores[jogadorIndex].nome} é o vencedor #${sala.contadorBingo}!`);
             
-            io.to(salaId).emit('fimDeJogo', `${jogador.nome} GANHOU O BINGO! 🥳`);
-            
-            atualizarPlacar(salaId);
-            console.log(`[Sala ${salaId}] Jogo terminado! Vencedor: ${jogador.nome}`);
+        } else {
+            io.to(socket.id).emit('avisoTimer', 'ERRO! BINGO INVÁLIDO. Números alegados não foram sorteados.');
         }
     });
 
     socket.on('disconnect', () => {
-        if (!salaId || !salas[salaId]) return;
-
-        console.log(`[Sala ${salaId}] ${usuario.nome} desconectou.`);
-
-        salas[salaId].jogadores = salas[salaId].jogadores.filter(j => j.id !== socket.id);
-
-        if (salas[salaId].hostId === socket.id) {
-             if (salas[salaId].timerSorteio) {
-                clearInterval(salas[salaId].timerSorteio);
-                salas[salaId].timerSorteio = null;
-                console.log(`[Sala ${salaId}] Timer de sorteio parado (Host desconectado).`);
-            }
-            
-            if (salas[salaId].jogadores.length > 0) {
-                salas[salaId].hostId = salas[salaId].jogadores[0].id;
-                io.to(salas[salaId].hostId).emit('avisoTimer', 'Você é o novo Host. Inicie o sorteio!');
-            }
+        if (salaID) {
+            removerJogador(socket, salaID);
         }
-        
-        if (salas[salaId].jogadores.length === 0) {
-            delete salas[salaId];
-            console.log(`[Sala ${salaId}] Sala vazia e removida.`);
-            return;
-        }
-        
-        atualizarPlacar(salaId);
     });
 });
 
-app.use(express.static('public'));
-
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
