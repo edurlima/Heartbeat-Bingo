@@ -6,31 +6,22 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// ===========================================
-// CONFIGURAÇÕES GLOBAIS DO JOGO
-// ===========================================
 const NUM_MAXIMO_BOLINHAS = 75;
-const INTERVALO_SORTEIO = 5000; // 5 segundos
+const INTERVALO_SORTEIO = 5000;
 
-// Variáveis para controlar salas, timers e o estado do jogo
-const salas = {}; // { salaID: { numeros: [], jogadores: [], hostId: '', tipoPartida: '', timerSorteio: null } }
+const salas = {};
 
-// Funções utilitárias
 function gerarNovoNumero(numerosSorteados) {
     const todos = Array.from({ length: NUM_MAXIMO_BOLINHAS }, (_, i) => i + 1);
     const naoSorteados = todos.filter(num => !numerosSorteados.includes(num));
 
     if (naoSorteados.length === 0) {
-        return null; // Fim de jogo
+        return null;
     }
 
     const indiceAleatorio = Math.floor(Math.random() * naoSorteados.length);
     return naoSorteados[indiceAleatorio];
 }
-
-// ===========================================
-// LÓGICA DO SORTEIO (CRÍTICO)
-// ===========================================
 
 function sortearProximoNumero(salaId) {
     const sala = salas[salaId];
@@ -70,10 +61,6 @@ function atualizarPlacar(salaId) {
     
     io.to(salaId).emit('placarAtualizado', placarData);
 }
-
-// ===========================================
-// LÓGICA DE SALAS E CONEXÃO
-// ===========================================
 
 io.on('connection', (socket) => {
     let salaId;
@@ -183,14 +170,8 @@ io.on('connection', (socket) => {
     });
 });
 
-// ===========================================
-// INICIALIZAÇÃO DO SERVIDOR WEB
-// ===========================================
-
-// Arquivos estáticos
 app.use(express.static('public'));
 
-// Usa a porta do ambiente (process.env.PORT) ou 3000 como fallback
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
