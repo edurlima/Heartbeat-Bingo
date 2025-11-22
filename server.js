@@ -210,8 +210,14 @@ io.on('connection', (socket) => {
 });
 
 // Arquivos estáticos
+// server.js (Parte final do arquivo)
+
 app.use(express.static('public'));
 
-server.listen(3000, () => {
-    console.log('Servidor rodando em http://localhost:3000');
+// 🚨 CORREÇÃO: Usa a porta do ambiente (process.env.PORT) ou 3000 como fallback
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+    // A mensagem de console aqui não é vista publicamente, apenas no log do Render
+    console.log(`Servidor rodando na porta ${PORT}`);
 });
