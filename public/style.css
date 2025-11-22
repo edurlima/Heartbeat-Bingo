@@ -1,350 +1,372 @@
-/* RESET BÁSICO E CONFIGURAÇÕES GLOBAIS */
 :root {
-    --cor-principal: #FF69B4; /* Rosa Choque (Hot Pink) - Cor dos Corações/Destaques */
-    --cor-secundaria: #F0A5D8; /* Rosa Claro - Cor de Fundo Suave */
-    --cor-fundo: #E0FFFF; /* Azul Claro/Ciano (Aqua) para fundo mais vibrante */
-    --cor-fundo-cartela: #FFF0F5; /* Fundo Muito Claro (Lavender Blush) para cartelas */
-    --cor-texto-escuro: #4B0082; /* Roxo Escuro (Indigo) */
-    --cor-texto-claro: white;
-    --cor-borda-jogo: #FF1493; /* Rosa mais intenso para bordas do jogo */
-    --cor-visor-bolinhas: #00BFFF; /* Azul vibrante para o visor de bolinhas */
-    --cor-letras-bingo: #8A2BE2; /* Roxo Azulado para as letras do BINGO */
+    
+    --cor-principal: #FF69B4;    
+    --cor-secundaria: #FFB6C1;  
+    --cor-fundo-claro: #FFF0F5;   
+    --cor-fundo-escuro: #F5E8FF;  
+    
+    
+    --cor-texto-escuro: #3A0F5B; 
+    --cor-texto-claro: #FFFFFF;   
+    --cor-borda: #E0B0FF;         
+    
+    
+    --cor-quina: #FFA07A;         
+    --cor-bingo: #3CB371;         
+    --cor-alerta: #FFD700;      
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial Rounded MT', 'Arial', sans-serif; 
+
+@keyframes neon-glow {
+    0%, 100% {
+        box-shadow: 0 0 5px var(--cor-principal), 0 0 10px var(--cor-principal);
+    }
+    50% {
+        box-shadow: 0 0 10px var(--cor-secundaria), 0 0 20px var(--cor-secundaria);
+    }
 }
 
-body {
-    background-color: var(--cor-fundo);
-    color: var(--cor-texto-escuro);
-    min-height: 100vh;
-    padding: 20px;
-}
-
-/* CONTÊINER PRINCIPAL DO JOGO */
-.bingo-container {
-    background-color: var(--cor-fundo-cartela); /* Fundo mais suave para o contêiner */
-    padding: 35px;
-    border-radius: 20px;
-    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4); 
-    text-align: center;
-    max-width: 1400px; /* Mais largo para o layout lado a lado */
-    width: 100%;
-    border: 5px solid var(--cor-borda-jogo);
-    margin: 0 auto;
-}
-
-h1 {
-    color: var(--cor-texto-escuro);
-    margin-bottom: 5px; 
-    font-size: 2.5em;
-    text-shadow: 1px 1px 0 var(--cor-texto-claro);
-}
-
-/* --- LAYOUT PRINCIPAL (para game-main-area) --- */
-.game-main-area {
-    display: flex;
-    justify-content: space-between; /* Distribui espaço */
-    align-items: flex-start;
-    gap: 25px; 
-    margin-top: 20px;
-}
-
-/* --- PAINEL LATERAL ESQUERDO (Visor/Botões) --- */
-.game-left-panel {
-    flex: 0 0 250px; /* Largura fixa para o painel de controle */
-    padding: 15px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    position: sticky; /* Mantém o painel visível ao rolar as cartelas */
-    top: 20px; 
-}
-
-.display-sorteio {
-    margin: 10px 0 15px;
-    padding: 15px;
-    border: 3px dashed var(--cor-principal);
-    border-radius: 10px;
-    background-color: var(--cor-fundo-cartela);
-}
-
-.numero-sorteado {
-    font-size: 2.8em; 
-    font-weight: bold;
-    color: var(--cor-principal);
-}
 
 @keyframes pulse {
     0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+    100% { transform: scale(1.05); }
 }
 
-/* --- ÁREA CENTRAL (Cartelas e Visor de Chamados) --- */
-.game-center-panel {
-    flex-grow: 1; /* Ocupa o restante do espaço */
+
+body {
+    background-color: var(--cor-fundo-claro);
+    color: var(--cor-texto-escuro);
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+
+.main-header {
+    width: 100%;
+    padding: 15px 30px;
+    background-color: var(--cor-fundo-claro);
+    border-bottom: 2px solid var(--cor-borda);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+#titulo-jogo {
+    color: var(--cor-principal);
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+
+.player-info {
+    font-size: 0.9em;
+    padding: 5px 10px;
+}
+
+#placar-multiplayer table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 300px;
+}
+
+#placar-multiplayer th, #placar-multiplayer td {
+    padding: 5px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.vencedor-linha {
+    background-color: var(--cor-fundo-escuro);
+}
+
+.vencedor {
+    color: var(--cor-bingo);
+    font-weight: bold;
+}
+
+
+
+.menu-container {
+    padding: 30px;
+    background-color: var(--cor-fundo-claro);
+    border: 3px solid var(--cor-principal);
+    border-radius: 15px;
+    margin-top: 50px;
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.4); 
+    text-align: center;
+}
+
+.form-inicio label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.form-inicio input[type="text"] {
+    padding: 10px;
+    margin-top: 5px;
+    border: 2px solid var(--cor-borda);
+    border-radius: 10px;
+    width: 90%;
+    max-width: 300px;
+    background-color: var(--cor-fundo-claro);
+    color: var(--cor-texto-escuro);
+}
+
+.radio-group {
+    margin: 15px 0;
+}
+
+
+
+.game-container {
+    display: flex;
+    max-width: 1200px;
+    width: 95%;
+    margin-top: 20px;
     gap: 20px;
 }
 
-/* --- CARTELAS AGRUPADAS (Permite rolagem horizontal/quebra de linha) --- */
-.cartelas-agrupadas {
-    display: flex;
-    flex-wrap: wrap; 
-    gap: 20px; 
-    justify-content: flex-start;
-    padding-bottom: 20px;
+.game-left-panel {
+    flex-basis: 250px;
+    padding: 15px;
+    border-right: 2px solid var(--cor-borda);
 }
 
-/* --- VISOR DE NÚMEROS CHAMADOS (Integrado ao lado das cartelas) --- */
-.visor-chamados-integrado {
-    width: 100%;
-    padding: 20px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: left;
-    border: 1px solid var(--cor-visor-bolinhas);
-    order: -1; /* Coloca o visor de chamados acima das cartelas no painel central */
+.game-center-panel {
+    flex-grow: 1;
+    padding: 15px;
 }
 
-.visor-chamados-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px; 
-    justify-content: flex-start;
-    max-height: 200px; 
-    overflow-y: auto; 
-    padding: 5px;
-    margin-top: 10px;
-}
 
-.bolinha-chamada {
-    display: inline-flex;
-    flex-direction: column; /* Coloca letra e número em linha */
-    justify-content: center;
-    align-items: center;
-    width: 35px;
-    height: 35px;
-    background-color: var(--cor-visor-bolinhas);
-    color: var(--cor-texto-claro);
-    border-radius: 50%;
-    font-size: 0.8em;
-    font-weight: bold;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.bolinha-letra {
-    font-size: 0.6em;
-    font-weight: normal;
-    line-height: 1;
-}
-
-/* --- PLACAR TOP --- */
-.placar-top {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: white;
-    border-radius: 8px;
-    text-align: left;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.placar-top table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9em;
-    margin-top: 5px;
-}
-
-.placar-top th, .placar-top td {
-    padding: 4px 8px;
-    border-bottom: 1px solid #eee;
-}
-
-.placar-top .vencedor {
-    color: var(--cor-principal);
-    font-weight: bold;
-}
-
-/* --- ESTILO DOS BOTÕES --- */
-.btn-iniciar-timer, #btnReiniciar, .btn-add-cartela, #btnIniciarJogo {
-    background-color: var(--cor-principal);
-    color: var(--cor-texto-claro);
-    border: none;
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: transform 0.2s, background-color 0.3s;
-    box-shadow: 0 3px 0 var(--cor-borda-jogo);
-    margin-top: 10px;
-    width: 100%;
-}
-
-.btn-iniciar-timer:hover, #btnReiniciar:hover, .btn-add-cartela:hover, #btnIniciarJogo:hover {
-    background-color: #FF1493;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 0 var(--cor-borda-jogo);
-}
-
-/* --- SEÇÃO CARTELA --- */
-.cartela-exemplo { 
-    width: 200px; /* Cartela mais compacta para caber mais */
-    margin-top: 10px;
-    border-collapse: collapse;
-    background-color: white; 
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    overflow: hidden; /* Garante que a borda da tabela siga o border-radius */
-}
-
-.cartela-exemplo th, .cartela-exemplo td { 
-    border: 2px solid var(--cor-principal);
-    padding: 6px; /* Padding reduzido */
-    font-size: 1em;
-    font-weight: bold;
-    color: var(--cor-texto-escuro);
+.visor-sorteador {
+    background-color: var(--cor-fundo-escuro);
+    border: 3px solid var(--cor-principal);
+    border-radius: 15px;
+    padding: 15px;
     text-align: center;
-    cursor: pointer; 
-    transition: background-color 0.1s;
-    height: 40px; /* Altura fixa */
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
 }
 
-.cartela-exemplo th { 
-    background-color: var(--cor-principal);
-    color: var(--cor-texto-claro);
-    text-transform: uppercase;
+.visor-sorteador h3 {
+    margin-top: 0;
+    color: var(--cor-texto-escuro);
 }
 
-/* --- ESTILO PARA CÉLULAS MARCADAS --- */
-.cartela-celula.marcado {
-    /* TESTE CRÍTICO: Sobrescreve as variáveis com cores de alto contraste */
-    background-color: #ff0000 !important; /* VERMELHO BERRANTE para o fundo */
-    color: #ffffff !important;         /* BRANCO PURO para o texto */
-    
-    text-decoration: none;
-    position: relative;
-    transition: background-color 0.3s;
+.display-sorteio {
+    padding: 15px 0;
 }
 
-/* O coração no centro (célula FREE) é o conteúdo padrão da célula (visto no script.js) */
-
-/* Se o usuário marcar uma célula, ela fica rosa, e o coração secundário não aparece (estilo da marcação padrão) */
-.cartela-celula.marcado::after {
-    /* Remove o coração secundário do código anterior */
-    content: none;
+.numero-sorteado {
+    font-size: 3em;
+    color: var(--cor-principal);
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(255, 105, 180, 0.7); 
 }
 
-/* Estilo específico para o Coração no FREE */
-.cartela-celula[data-numero="FREE"] {
-    background-color: var(--cor-principal) !important;
-    color: var(--cor-texto-claro) !important;
-    font-size: 1.5em; /* Aumenta o coração */
-}
-.cartela-celula[data-numero="FREE"]:hover {
-    cursor: default; /* Impede que o FREE seja clicável/desmarcado */
-}
 
-/* --- ESTILO MENU INICIAL FOFO --- */
-.menu-container {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--cor-fundo);
+.controles-jogo {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+    gap: 10px;
 }
 
-.menu-container h2 {
-    color: var(--cor-principal); 
-    margin-bottom: 25px;
-    font-size: 3em;
-    text-shadow: 1px 1px 0 var(--cor-texto-claro);
+.btn-control, .btn-primary, button[type="submit"] {
+    background-color: var(--cor-secundaria);
+    color: var(--cor-texto-claro);
+    border: 2px solid var(--cor-principal);
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: all 0.3s;
 }
 
-.menu-container form {
-    padding: 30px;
-    border: 3px solid var(--cor-principal); 
-    border-radius: 20px; 
-    background: white; 
-    box-shadow: 0 8px 25px rgba(255, 105, 180, 0.6); 
-    min-width: 380px;
-    transition: transform 0.3s;
-    text-align: left;
+.btn-control:disabled {
+    background-color: #ccc;
+    border-color: #aaa;
+    cursor: not-allowed;
 }
 
-.menu-container input[type="text"] {
-    width: 100%;
-    padding: 8px;
+.btn-control:hover:not(:disabled), .btn-primary:hover:not(:disabled) {
+    background-color: var(--cor-principal);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+    background-color: var(--cor-fundo-escuro);
+    color: var(--cor-texto-escuro);
+}
+
+.btn-add {
+    background-color: var(--cor-bingo);
+}
+
+.game-mode-info {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9em;
+}
+
+
+
+.area-placar-sorteio h2 {
+    text-align: center;
     margin-bottom: 10px;
-    border: 1px solid var(--cor-secundaria);
+}
+
+.placar-bingo-container {
+    
+    display: flex; 
+    flex-direction: row; 
+    justify-content: space-around; 
+    align-items: flex-start; 
+    width: 100%; 
+    margin-top: 15px;
+    padding: 15px 10px; 
+    border: 2px solid var(--cor-borda);
+    border-radius: 12px;
+    background-color: var(--cor-fundo-claro);
+    box-shadow: 0 0 8px rgba(224, 176, 255, 0.6); 
+}
+
+.placar-coluna {
+    
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center;
+    min-width: 18%; 
+    padding: 0 2px;
+}
+
+.placar-coluna h3 {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: var(--cor-principal); 
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--cor-principal);
+    width: 80%;
+}
+
+.placar-coluna span {
+    font-size: 1em;
+    margin: 3px 0;
+    padding: 4px 6px;
+    border-radius: 6px;
+    background-color: var(--cor-secundaria); 
+    color: var(--cor-texto-claro);
+    width: 95%; 
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+}
+
+
+.cartelas-agrupadas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.cartela-exemplo {
+    border-collapse: collapse;
+    width: 250px;
+    max-width: 100%;
+    margin: 10px 0;
+    border: 3px solid var(--cor-borda);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: var(--cor-fundo-claro);
+}
+
+.cartela-exemplo th {
+    background-color: var(--cor-principal);
+    color: var(--cor-texto-claro);
+    padding: 10px 0;
+    font-size: 1.1em;
+}
+
+.cartela-celula {
+    border: 1px solid var(--cor-borda);
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: var(--cor-fundo-escuro);
+    color: var(--cor-texto-escuro);
+    transition: all 0.2s;
+}
+
+.cartela-celula:hover {
+    background-color: var(--cor-secundaria);
+    color: var(--cor-texto-claro);
+}
+
+
+.cartela-celula.marcado {
+    background-color: var(--cor-principal) !important;
+    color: var(--cor-texto-claro) !important;
+    animation: neon-glow 1.5s infinite alternate; /* Aplica o brilho na marcação */
     border-radius: 5px;
+    transform: scale(1.05);
+    transition: transform 0.2s;
 }
 
-/* --- ANIMAÇÕES E EFEITOS DE VITÓRIA --- */
 
-@keyframes vitoria-pulsar {
-    0% { transform: scale(1); box-shadow: 0 0 15px var(--cor-principal); }
-    50% { transform: scale(1.015); box-shadow: 0 0 30px var(--cor-principal), 0 0 40px var(--cor-fundo); }
-    100% { transform: scale(1); box-shadow: 0 0 15px var(--cor-principal); }
+.cartela-exemplo.efeito-quina {
+    box-shadow: 0 0 15px var(--cor-quina), 0 0 5px var(--cor-quina);
+}
+.cartela-exemplo.efeito-bingo {
+    border-color: var(--cor-bingo);
+    box-shadow: 0 0 20px var(--cor-bingo), 0 0 10px var(--cor-bingo);
+    animation: neon-glow 1s infinite alternate;
 }
 
-.efeito-bingo {
-    border-color: gold !important;
-    animation: vitoria-pulsar 0.5s infinite alternate ease-in-out;
-    background-color: #FFD700 !important;
-}
 
-.efeito-quina {
-    box-shadow: 0 0 20px #90EE90, 0 0 30px #ADFF2F;
-    transition: box-shadow 0.5s;
-}
 
-/* --- NOTIFICAÇÕES (TOAST) --- */
-
-.notificacao-vitoria {
+.notificacao-toast {
     visibility: hidden;
     min-width: 250px;
+    margin-left: -125px;
     background-color: #333;
     color: #fff;
     text-align: center;
-    border-radius: 20px;
+    border-radius: 8px;
     padding: 16px;
     position: fixed;
-    z-index: 100;
+    z-index: 1000;
     left: 50%;
-    transform: translateX(-50%);
     bottom: 30px;
-    font-size: 17px;
+    font-size: 1em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     transition: visibility 0s, opacity 0.5s linear;
     opacity: 0;
 }
 
-.notificacao-vitoria.show {
+.notificacao-toast.show {
     visibility: visible;
     opacity: 1;
 }
 
-.notificacao-vitoria.alerta { background-color: #4B0082; }
-.notificacao-vitoria.quina { background-color: #FF1493; }
-.notificacao-vitoria.bingo { background-color: gold; color: #333; font-weight: bold; }
-
-/* ESTILOS DE LAYOUT CRÍTICOS (MENU E JOGO PRINCIPAL) */
-#jogoPrincipal {
-    width: 100%;
-    display: flex; 
-    justify-content: center; 
-    align-items: flex-start;
+.notificacao-toast.quina {
+    background-color: var(--cor-quina);
+}
+.notificacao-toast.bingo {
+    background-color: var(--cor-bingo);
+}
+.notificacao-toast.alerta {
+    background-color: var(--cor-alerta);
+    color: var(--cor-texto-escuro);
 }
