@@ -1,22 +1,25 @@
+/* ============================================================================== */
+/* 1. VARIÁVEIS CSS E ANIMAÇÕES GLOBAIS (TEMA ROSA FOFO) */
+/* ============================================================================== */
 :root {
+    /* Cores Fofas e Brilhantes */
+    --cor-principal: #FF69B4;     /* Rosa Choque (Hot Pink) - Destaque Principal */
+    --cor-secundaria: #FFB6C1;   /* Rosa Claro (Light Pink) - Para botões/fundos secundários */
+    --cor-fundo-claro: #FFF0F5;   /* Fundo Brilhante (Floral White) */
+    --cor-fundo-escuro: #F5E8FF;  /* Roxo/Lavanda Suave - Para Contraste */
     
-    --cor-principal: #FF69B4;    
-    --cor-secundaria: #FFB6C1;  
-    --cor-fundo-claro: #FFF0F5;   
-    --cor-fundo-escuro: #F5E8FF;  
+    /* Cores de Texto e Borda */
+    --cor-texto-escuro: #3A0F5B;  /* Roxo Escuro - Leitura fácil */
+    --cor-texto-claro: #FFFFFF;    /* Branco */
+    --cor-borda: #E0B0FF;         /* Lavanda Suave - Para Bordas */
     
-    
-    --cor-texto-escuro: #3A0F5B; 
-    --cor-texto-claro: #FFFFFF;   
-    --cor-borda: #E0B0FF;         
-    
-    
-    --cor-quina: #FFA07A;         
-    --cor-bingo: #3CB371;         
-    --cor-alerta: #FFD700;      
+    /* Cores de Alerta */
+    --cor-quina: #FFA07A;         /* Salmão Claro - Quina */
+    --cor-bingo: #3CB371;         /* Verde Médio - Bingo */
+    --cor-alerta: #FFD700;        /* Dourado para avisos */
 }
 
-
+/* 🌟 Efeito de Brilho (Neon/Soft Glow) 🌟 */
 @keyframes neon-glow {
     0%, 100% {
         box-shadow: 0 0 5px var(--cor-principal), 0 0 10px var(--cor-principal);
@@ -26,13 +29,15 @@
     }
 }
 
-
+/* Efeito de pulsação para o último número sorteado */
 @keyframes pulse {
     0% { transform: scale(1); }
     100% { transform: scale(1.05); }
 }
 
-
+/* ============================================================================== */
+/* 2. ESTILOS GLOBAIS E LAYOUT DA APLICAÇÃO */
+/* ============================================================================== */
 body {
     background-color: var(--cor-fundo-claro);
     color: var(--cor-texto-escuro);
@@ -45,7 +50,7 @@ body {
     min-height: 100vh;
 }
 
-
+/* Cabeçalho Principal */
 .main-header {
     width: 100%;
     padding: 15px 30px;
@@ -62,7 +67,7 @@ body {
     text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
 }
 
-
+/* Container de Jogador (Placar Multiplayer) */
 .player-info {
     font-size: 0.9em;
     padding: 5px 10px;
@@ -90,7 +95,9 @@ body {
 }
 
 
-
+/* ============================================================================== */
+/* 3. MENU INICIAL */
+/* ============================================================================== */
 .menu-container {
     padding: 30px;
     background-color: var(--cor-fundo-claro);
@@ -123,7 +130,9 @@ body {
 }
 
 
-
+/* ============================================================================== */
+/* 4. LAYOUT DO JOGO PRINCIPAL (NOVO LAYOUT) */
+/* ============================================================================== */
 .game-container {
     display: flex;
     max-width: 1200px;
@@ -133,7 +142,8 @@ body {
 }
 
 .game-left-panel {
-    flex-basis: 250px;
+    /* Ajustado para caber os botões */
+    flex-basis: 280px; 
     padding: 15px;
     border-right: 2px solid var(--cor-borda);
 }
@@ -143,14 +153,22 @@ body {
     padding: 15px;
 }
 
+/* ============================================================================== */
+/* 5. VISOR E CONTROLES */
+/* ============================================================================== */
+.controles-jogo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
+/* Estilo para o Visor do Último Sorteio */
 .visor-sorteador {
     background-color: var(--cor-fundo-escuro);
     border: 3px solid var(--cor-principal);
     border-radius: 15px;
     padding: 15px;
     text-align: center;
-    margin-bottom: 20px;
     box-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
 }
 
@@ -170,13 +188,7 @@ body {
     text-shadow: 0 0 10px rgba(255, 105, 180, 0.7); 
 }
 
-
-.controles-jogo {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
+/* Botões de Controle */
 .btn-control, .btn-primary, button[type="submit"] {
     background-color: var(--cor-secundaria);
     color: var(--cor-texto-claro);
@@ -216,15 +228,40 @@ body {
     font-size: 0.9em;
 }
 
+/* ============================================================================== */
+/* 6. NOVO BLOCO VISOR E PLACAR CENTRAL */
+/* ============================================================================== */
+.visor-e-placar-container {
+    /* Organiza Visor e Placar um em cima do outro */
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.visor-sorteador.visor-central {
+    /* Estilo para o visor no painel central */
+    width: 250px; 
+    margin-bottom: 20px;
+}
+
+.area-placar-sorteio {
+    width: 100%;
+    max-width: 900px; 
+    text-align: center;
+}
 
 
+/* ============================================================================== */
+/* 7. PLACAR DE NÚMEROS SORTEADOS (B-I-N-G-O) */
+/* ============================================================================== */
 .area-placar-sorteio h2 {
     text-align: center;
     margin-bottom: 10px;
 }
 
 .placar-bingo-container {
-    
     display: flex; 
     flex-direction: row; 
     justify-content: space-around; 
@@ -239,7 +276,6 @@ body {
 }
 
 .placar-coluna {
-    
     display: flex; 
     flex-direction: column; 
     align-items: center; 
@@ -271,11 +307,25 @@ body {
 }
 
 
+/* ============================================================================== */
+/* 8. ESTILOS DA CARTELA DE BINGO (LADO A LADO) */
+/* ============================================================================== */
+.titulo-cartelas {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
 .cartelas-agrupadas {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    flex-wrap: wrap; /* CRÍTICO: Permite que as cartelas quebrem a linha */
+    justify-content: center; /* Centraliza as cartelas */
+    gap: 25px; 
     margin-top: 20px;
+    padding: 15px;
+    background-color: var(--cor-fundo-escuro);
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
 .cartela-exemplo {
@@ -314,17 +364,17 @@ body {
     color: var(--cor-texto-claro);
 }
 
-
+/* --- ESTILO PARA CÉLULAS MARCADAS --- */
 .cartela-celula.marcado {
     background-color: var(--cor-principal) !important;
     color: var(--cor-texto-claro) !important;
-    animation: neon-glow 1.5s infinite alternate; /* Aplica o brilho na marcação */
+    animation: neon-glow 1.5s infinite alternate; 
     border-radius: 5px;
     transform: scale(1.05);
     transition: transform 0.2s;
 }
 
-
+/* EFEITOS VISUAIS DE BINGO/QUINA */
 .cartela-exemplo.efeito-quina {
     box-shadow: 0 0 15px var(--cor-quina), 0 0 5px var(--cor-quina);
 }
@@ -335,7 +385,9 @@ body {
 }
 
 
-
+/* ============================================================================== */
+/* 9. TOAST DE NOTIFICAÇÃO */
+/* ============================================================================== */
 .notificacao-toast {
     visibility: hidden;
     min-width: 250px;
