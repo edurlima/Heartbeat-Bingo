@@ -10,7 +10,7 @@ const io = socketIo(server);
 // CONFIGURAÇÕES GLOBAIS DO JOGO
 // ===========================================
 const NUM_MAXIMO_BOLINHAS = 75;
-const INTERVALO_SORTEIO = 5000; // 8 segundos para o sorteio cronometrado
+const INTERVALO_SORTEIO = 5000; // 5 segundos para o sorteio cronometrado
 
 // Variáveis para controlar salas, timers e o estado do jogo
 const salas = {}; // { salaID: { numeros: [], jogadores: [], hostId: '', tipoPartida: '', timerSorteio: null } }
@@ -207,17 +207,14 @@ io.on('connection', (socket) => {
         
         atualizarPlacar(salaId);
     });
-});
+}); // <--- CHAVE DE FECHAMENTO FINAL CORRETA AQUI!
 
 // Arquivos estáticos
-// server.js (Parte final do arquivo)
-
 app.use(express.static('public'));
 
-// 🚨 CORREÇÃO: Usa a porta do ambiente (process.env.PORT) ou 3000 como fallback
+// 🚨 INICIALIZAÇÃO CORRETA: Usa a porta do ambiente (process.env.PORT) ou 3000 como fallback
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-    // A mensagem de console aqui não é vista publicamente, apenas no log do Render
     console.log(`Servidor rodando na porta ${PORT}`);
 });
