@@ -226,9 +226,9 @@ h1 {
 
 /* --- ESTILO PARA CÉLULAS MARCADAS --- */
 .cartela-celula.marcado {
-    /* CRÍTICO: Sobrescreve a cor de fundo e a cor do texto */
-    background-color: var(--cor-principal) !important;
-    color: var(--cor-texto-claro) !important;
+    /* TESTE CRÍTICO: Sobrescreve as variáveis com cores de alto contraste */
+    background-color: #ff0000 !important; /* VERMELHO BERRANTE para o fundo */
+    color: #ffffff !important;         /* BRANCO PURO para o texto */
     
     text-decoration: none;
     position: relative;
