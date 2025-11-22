@@ -1,15 +1,11 @@
-// ==============================================================================
-// INÍCIO: CONEXÃO MULTIPLAYER
-// ==============================================================================
+
 const socket = io(); 
 
-// 🚨 NOVO: Variável global para armazenar números sorteados por coluna (B-I-N-G-O)
-const COLUNAS_SORTEIO = { 'B': [], 'I': [], 'N': [], 'G': [], 'O': [] };
-const CONTAINER_PLACARES = document.getElementById('placar-sorteio'); // Elemento HTML onde o placar será renderizado
 
-// ==============================================================================
-// 1. CLASSES E LÓGICA BASE
-// ==============================================================================
+const COLUNAS_SORTEIO = { 'B': [], 'I': [], 'N': [], 'G': [], 'O': [] };
+const CONTAINER_PLACARES = document.getElementById('placar-sorteio'); 
+
+
 
 class SorteadorBingo {
     #qtdNumeros; #qtdBolinhasSorteadas; #bolinhasSortadas; #numeros;
@@ -90,8 +86,6 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
         }
         return "ERRO";
     }
-    
-    // Funções estáticas... (manutenção do seu código original)
 
     static gerarCartela(idCartela) {
         const cartela = {};
@@ -135,8 +129,8 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
                 const classeInicial = isFree ? 'marcado' : 'nao-marcado'; 
                 const displayValue = isFree ? '💖' : valor;
                 
-                // 🚨 CORREÇÃO: data-numero deve ser o número real (ou FREE)
-                const dataNumero = isFree ? '0' : valor; // Usamos '0' para FREE na validação
+                
+                const dataNumero = isFree ? '0' : valor; 
                 
                 const eventListener = `onclick="toggleMarcacao(this)"`; 
 
@@ -161,7 +155,7 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
         let quinaEncontrada = false;
         let totalMarcado = 0;
         
-        // Verifica Linhas e Colunas
+        
         for (let i = 0; i < 5; i++) {
             let acertosLinha = 0;
             let acertosColuna = 0;
@@ -170,18 +164,18 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
                 const linhaCellId = `${ID_BASE}-${letras[j]}-${i}`;
                 const colunaCellId = `${ID_BASE}-${letras[i]}-${j}`;
                 
-                // Verifica linha
+                
                 const valLinha = cartela[letras[j]][i];
                 if (isMarcado(valLinha, linhaCellId)) { acertosLinha++; }
 
-                // Verifica coluna
+                
                 const valColuna = cartela[letras[i]][j];
                 if (isMarcado(valColuna, colunaCellId)) { acertosColuna++; }
             }
             if (acertosLinha === 5 || acertosColuna === 5) { quinaEncontrada = true; }
         }
         
-        // Conta total marcado para o Bingo
+        
         for (let i = 0; i < 5; i++) {
             for (let j = 0; j < 5; j++) {
                 const val = cartela[letras[j]][i];
@@ -192,7 +186,7 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
             }
         }
 
-        // Verifica Diagonais
+       
         let acertosDiagPrincipal = 0;
         let acertosDiagSecundaria = 0;
         for (let i = 0; i < 5; i++) {
@@ -204,9 +198,9 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
         }
         if (acertosDiagPrincipal === 5 || acertosDiagSecundaria === 5) { quinaEncontrada = true; }
 
-        // Lógica de vitória: Quina e Bingo (25 marcações)
+        
         if (bingoInstance.tipoVitoriaIndice === 0) { 
-            if (totalMarcado >= 25) { // 24 marcadas + 1 FREE = 25
+            if (totalMarcado >= 25) {
                 return { tipo: "Bingo", detalhe: "Cartela Completa" };
             }
             if (quinaEncontrada) {
@@ -219,9 +213,7 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
 }
 
 
-// ==============================================================================
-// 2. VARIÁVEIS DE CONTROLE GLOBAL
-// ==============================================================================
+
 let idiomaAtual = 'pt-br'; 
 let cartelaCounter = 1; 
 let modoDePartida = 'manual';
@@ -231,7 +223,7 @@ const ID_PRIMEIRA_CARTELA = "cartela-exemplo-id"; 
 const BINGO_CARTELA_DATA = SorteadorBingoBrasileiro.gerarCartela(null); 
 const CARTELA_EXEMPLO = SorteadorBingoBrasileiro.montarCartelaHTML(BINGO_CARTELA_DATA, ID_PRIMEIRA_CARTELA); 
 
-// Variáveis para elementos do DOM
+
 let btnIniciarSorteioTimer = null; 
 let btnReiniciar = null; 
 let btnAddCartela = null; 
@@ -243,9 +235,6 @@ let notificacaoMensagem = null;
 let placarMultiplayerDiv = null; 
 
 
-// ==============================================================================
-// 3. OBJETO DE TRADUÇÃO E FUNÇÕES DE UTILIDADE
-// ==============================================================================
 
 const TRADUCOES = {
     'pt-br': {
@@ -280,15 +269,15 @@ function mostrarNotificacao(mensagem, tipo) {
     }
 }
 
-// 🚨 NOVO: Obtém os números marcados da cartela (crucial para o servidor)
+
 function obterNumerosMarcadosParaValidacao() {
     const numerosMarcados = [];
     
-    // Procura por todas as células que têm a classe 'marcado'
+    
     document.querySelectorAll('.cartela-celula.marcado').forEach(cell => {
         const dataNumero = cell.getAttribute('data-numero');
         
-        // Ignora a célula FREE, que deve ter o data-numero='0'
+       
         if (dataNumero !== '0') {
             const num = parseInt(dataNumero); 
             if (!isNaN(num)) {
@@ -300,13 +289,39 @@ function obterNumerosMarcadosParaValidacao() {
 }
 
 
-// --- Função para Marcar/Desmarcar Célula (Modo Manual) ---
+
 window.toggleMarcacao = function(cellElement) {
-    // A célula FREE não deve ser desmarcada.
-    if (cellElement.dataset.numero === '0') return; // Corrigido para usar '0'
+     
+    const numeroCelulaStr = cellElement.dataset.numero;
+    const numeroCelula = parseInt(numeroCelulaStr);
+
+   
+    if (numeroCelula === 0) return; 
 
     if (modoDePartida === 'manual') {
-        cellElement.classList.toggle('marcado');
+        
+        const numerosSorteados = bingo.bolinhasSortadas; 
+        
+        
+        const numeroFoiSorteado = numerosSorteados.includes(numeroCelula);
+        
+        
+        if (cellElement.classList.contains('marcado')) {
+            cellElement.classList.remove('marcado');
+            
+        } else {
+           
+            
+            if (numeroFoiSorteado) {
+               
+                cellElement.classList.add('marcado');
+            } else {
+                
+                mostrarNotificacao(`ERRO: O número ${numeroCelula} ainda não foi sorteado e não pode ser marcado.`, 'alerta');
+                return; 
+            }
+        }
+        
         
         const cartelaElemento = cellElement.closest('.cartela-exemplo');
         if (cartelaElemento) {
@@ -317,23 +332,20 @@ window.toggleMarcacao = function(cellElement) {
     }
 }
 
-// --- Função para Renderizar o Visor de Números Chamados (Removida e substituída por renderizarPlacarSorteio) ---
 
-// ==============================================================================
-// 🚨 NOVO: Lógica de Renderização do Placar por Coluna (B-I-N-G-O)
-// ==============================================================================
+
 
 function renderizarPlacarSorteio(colunas) {
     if (!CONTAINER_PLACARES) return;
     
-    // 1. Limpa o container
+    
     CONTAINER_PLACARES.innerHTML = ''; 
 
-    // 2. Cria o container principal do placar
+    
     const placarHTML = document.createElement('div');
     placarHTML.className = 'placar-bingo-container'; 
     
-    const letras = ['B', 'I', 'N', 'G', 'O']; // Ordem garantida
+    const letras = ['B', 'I', 'N', 'G', 'O']; 
     
     letras.forEach(letra => {
         const colunaDiv = document.createElement('div');
@@ -343,7 +355,7 @@ function renderizarPlacarSorteio(colunas) {
         titulo.textContent = letra;
         colunaDiv.appendChild(titulo);
 
-        // Lista os números ordenados
+       
         colunas[letra].slice().sort((a, b) => a - b).forEach(num => {
             const numSpan = document.createElement('span');
             numSpan.textContent = num;
@@ -357,9 +369,7 @@ function renderizarPlacarSorteio(colunas) {
 }
 
 
-// ==============================================================================
-// 4. FUNÇÕES DE RENDERIZAÇÃO E MARCAÇÃO
-// ==============================================================================
+
 
 function marcarECarregarCartela(cartelaElemento) {
     cartelaElemento.classList.remove('efeito-quina', 'efeito-bingo');
@@ -380,20 +390,20 @@ function marcarECarregarCartela(cartelaElemento) {
         } else if (resultadoVitoria.tipo === "Bingo") {
             cartelaElemento.classList.add('efeito-bingo');
             
-            // 🚨 CRÍTICO BINGO: Notificação local + emissão da CARTELA para o servidor
+            
             mostrarNotificacao(TRADUCOES[idiomaAtual].BINGO_MSG, 'bingo'); 
             
-            // 🚨 MUDANÇA: Envia os números marcados para o servidor validar!
+            
             const numerosMarcados = obterNumerosMarcadosParaValidacao(); 
             socket.emit('alegarVitoria', numerosMarcados);
             
-            // Desabilita o botão localmente (será reativado se a validação falhar)
+            
             if (btnIniciarSorteioTimer) {
                 btnIniciarSorteioTimer.disabled = true; 
             }
         }
         
-        // Lógica para notificação de Quina
+        
         if (mostrarQuina) {
             if (!cartelaElemento.dataset.quinaNotificada) {
                 mostrarNotificacao(TRADUCOES[idiomaAtual].QUINA_MSG, 'quina');
@@ -439,7 +449,7 @@ function renderPlacar() {
         btnIniciarSorteioTimer.disabled = true;
     }
     
-    // 🚨 MUDANÇA: Atualiza o placar organizado por B-I-N-G-O
+    
     renderizarPlacarSorteio(COLUNAS_SORTEIO);
 }
 
@@ -483,12 +493,10 @@ function adicionarNovaCartela() {
 }
 
 
-// ==============================================================================
-// 5. INICIALIZAÇÃO E CONEXÃO DOS BOTÕES
-// ==============================================================================
+
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. REFERÊNCIAS DOM
+    
     btnIniciarSorteioTimer = document.getElementById('btnIniciarSorteioTimer');
     btnReiniciar = document.getElementById('btnReiniciar'); 
     btnAddCartela = document.getElementById('btnAddCartela'); 
@@ -507,21 +515,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const salaPrivadaRadio = document.getElementById('salaPrivada');
     const salaIDGroup = document.getElementById('salaIDGroup');
 
-    // Lógica para mostrar/esconder o campo de ID da sala
+    
     document.querySelectorAll('input[name="tipoSala"]').forEach(radio => {
         radio.addEventListener('change', () => {
             salaIDGroup.style.display = salaPrivadaRadio.checked ? 'block' : 'none';
         });
     });
 
-    // 2. ADICIONAR CARTELA INICIAL
+    
     if (cartelasAgrupadasDiv) {
         cartelasAgrupadasDiv.innerHTML = CARTELA_EXEMPLO; 
     }
     
-    // =======================================================
-    // LÓGICA DE INÍCIO DE JOGO
-    // =======================================================
+    
     if (formInicio) {
         formInicio.addEventListener('submit', (event) => {
             event.preventDefault(); 
@@ -535,11 +541,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 1. Oculta o menu e mostra o jogo
+            
             menuInicialDiv.style.display = 'none';
             jogoPrincipalDiv.style.display = 'flex'; 
             
-            // 2. EMITE O EVENTO DE ENTRAR NA SALA
+            
             socket.emit('entrarSala', { 
                 nome: nomeUsuario, 
                 salaID: salaID, 
@@ -547,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tipoPartida: modoDePartida
             });
 
-            // 3. Inicializa os renderizadores
+            
             renderHeader(); 
             if (tipoVitoriaAtualSpan) {
                 tipoVitoriaAtualSpan.textContent = bingo.tipoVitoria;
@@ -555,41 +561,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // ===========================================
-    // LISTENERS DO SOCKET.IO (CLIENTE)
-    // ===========================================
+   
     
     socket.on('estadoAtual', (estado) => {
         bingo.bolinhasSortadas = estado.numeros;
         
-        // 🚨 NOVO: Limpa e recarrega o placar B-I-N-G-O
-        // 1. Limpa o objeto global de controle de placar
+        
         Object.keys(COLUNAS_SORTEIO).forEach(k => COLUNAS_SORTEIO[k].length = 0);
         
-        // 2. Preenche com os números existentes
         estado.numeros.forEach(num => {
             const letra = bingo.encontrarLetra(num);
             COLUNAS_SORTEIO[letra].push(num);
         });
 
-        // Recria a cartela inicial para garantir que o onclick está ativo
+        
         cartelasAgrupadasDiv.innerHTML = SorteadorBingoBrasileiro.montarCartelaHTML(BINGO_CARTELA_DATA, ID_PRIMEIRA_CARTELA); 
         
-        renderPlacar(); // Chamará renderizarPlacarSorteio
+        renderPlacar();
         renderizarTodasCartelas(); 
         renderHeader();
     });
 
-    // 🚨 MUDANÇA: Agora recebe 'letra' do servidor para ser mais eficiente
     socket.on('novoNumero', (dados) => {
         bingo.bolinhasSortadas = dados.todos; 
         
-        // 🚨 NOVO: Adiciona a letra e o número sorteado ao placar
+       
         if(dados.letra && dados.numero) {
             COLUNAS_SORTEIO[dados.letra].push(dados.numero);
             mostrarNotificacao(TRADUCOES[idiomaAtual].CHAMANDO(dados.letra, dados.numero), 'alerta');
         } else {
-             // Fallback caso o servidor não envie a letra (usa o método local)
+             
              const letraLocal = bingo.encontrarLetra(dados.numero);
              COLUNAS_SORTEIO[letraLocal].push(dados.numero);
              mostrarNotificacao(TRADUCOES[idiomaAtual].CHAMANDO(letraLocal, dados.numero), 'alerta');
@@ -599,7 +600,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderizarTodasCartelas();
     });
     
-    // 🚨 CRÍTICO: Recebe a notificação de BINGO do servidor
     socket.on('fimDeJogo', (mensagem) => {
         mostrarNotificacao(mensagem, 'bingo');
         if (btnIniciarSorteioTimer) {
@@ -611,10 +611,10 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPlacarMultiplayer(placar);
     });
     
-    // 🚨 NOVO: Aviso do Timer (usado pelo servidor para rejeitar BINGO inválido)
+   
     socket.on('avisoTimer', (mensagem) => {
         mostrarNotificacao(mensagem, 'quina');
-        // Se a mensagem for um ERRO (bingo inválido), reativa o botão de sorteio localmente
+       
         if (mensagem.includes('ERRO!')) {
             if (btnIniciarSorteioTimer) {
                  btnIniciarSorteioTimer.disabled = false;
@@ -623,10 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     
-    // ===========================================
-    // LISTENERS DE INTERFACE
-    // ===========================================
-
+  
     if (btnIniciarSorteioTimer) {
         btnIniciarSorteioTimer.addEventListener('click', () => {
             socket.emit('iniciarSorteioAutomatico'); 
@@ -647,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnAddCartela.addEventListener('click', adicionarNovaCartela);
     }
     
-    // Inicialização final
+    
     if (tipoVitoriaAtualSpan) {
          tipoVitoriaAtualSpan.textContent = bingo.tipoVitoria;
     }
