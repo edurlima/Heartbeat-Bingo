@@ -1,3 +1,5 @@
+// server.js (Versão Final com Correção de Validação)
+
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -23,6 +25,29 @@ function gerarNovoNumero(numerosSorteados) {
     return naoSorteados[indiceAleatorio];
 }
 
+function atualizarPlacar(salaId) {
+    const sala = salas[salaId];
+    if (!sala) return;
+    
+    const placarData = sala.jogadores.map(jogador => ({
+        nome: jogador.nome,
+        status: jogador.status || 'Jogando',
+        id: jogador.id
+    }));
+    
+    io.to(salaId).emit('placarAtualizado', placarData);
+}
+
+// 🚨 NOVO: Organiza o número sorteado por coluna (B-I-N-G-O)
+function getLetra(numero) {
+    if (numero >= 1 && numero <= 15) return 'B';
+    if (numero >= 16 && numero <= 30) return 'I';
+    if (numero >= 31 && numero <= 45) return 'N';
+    if (numero >= 46 && numero <= 60) return 'G';
+    if (numero >= 61 && numero <= 75) return 'O';
+    return '';
+}
+
 function sortearProximoNumero(salaId) {
     const sala = salas[salaId];
     if (!sala) return;
@@ -32,9 +57,11 @@ function sortearProximoNumero(salaId) {
     if (novoNumero !== null) {
         sala.numeros.push(novoNumero);
         console.log(`[Sala ${salaId}] Novo número sorteado: ${novoNumero}`);
-
+        
+        // 🚨 ENVIA O NÚMERO E A LETRA PARA O CLIENTE
         io.to(salaId).emit('novoNumero', {
             numero: novoNumero,
+            letra: getLetra(novoNumero), // <--- NOVO
             todos: sala.numeros
         });
         
@@ -47,19 +74,6 @@ function sortearProximoNumero(salaId) {
             sala.timerSorteio = null;
         }
     }
-}
-
-function atualizarPlacar(salaId) {
-    const sala = salas[salaId];
-    if (!sala) return;
-    
-    const placarData = sala.jogadores.map(jogador => ({
-        nome: jogador.nome,
-        status: jogador.status || 'Jogando',
-        id: jogador.id
-    }));
-    
-    io.to(salaId).emit('placarAtualizado', placarData);
 }
 
 io.on('connection', (socket) => {
@@ -120,10 +134,23 @@ io.on('connection', (socket) => {
         io.to(salaId).emit('avisoTimer', `Sorteio iniciado! Bolinhas a cada ${INTERVALO_SORTEIO / 1000} segundos.`);
     });
     
-    socket.on('alegarVitoria', () => {
+    // 🚨 CORREÇÃO DE VALIDAÇÃO: Agora recebe os números marcados do cliente
+    socket.on('alegarVitoria', (numerosMarcadosDoCliente) => {
         const sala = salas[salaId];
+        
         if (!sala || !sala.timerSorteio) return; 
         
+        const numerosSorteados = sala.numeros;
+
+        // VALIDAÇÃO: Verifica se TODOS os números marcados pelo cliente foram sorteados
+        const isBingoValido = numerosMarcadosDoCliente.every(num => numerosSorteados.includes(num));
+
+        if (!isBingoValido) {
+            socket.emit('avisoTimer', 'ERRO! O Bingo não é válido. Verifique sua cartela e continue jogando.');
+            return;
+        }
+        
+        // SE CHEGOU AQUI, O BINGO É VÁLIDO
         const jogador = sala.jogadores.find(j => j.id === socket.id);
         if (jogador) {
             jogador.status = 'VENCEDOR: BINGO! 🏆';
