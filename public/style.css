@@ -286,9 +286,12 @@ body {
 }
 
 .cartela-exemplo {
-    /* Largura mantida (160px) */
+    /* Largura definida para a proporção quadrada */
     width: 160px; 
     max-width: 100%;
+    /* Altura definida para tentar forçar o quadrado (160px) */
+    height: 160px; /* CRÍTICO: Força a altura */
+    table-layout: fixed; /* Ajuda a distribuir o espaço uniformemente */
     margin: 0;
     border: 3px solid var(--cor-borda);
     border-radius: 10px;
@@ -302,11 +305,12 @@ body {
 .cartela-exemplo th {
     background-color: var(--cor-principal);
     color: var(--cor-texto-claro);
-    padding: 3px 0; /* CRÍTICO: Padding vertical do cabeçalho reduzido */
-    font-size: 0.9em; 
+    padding: 2px 0; /* Padding vertical do cabeçalho MÍNIMO */
+    font-size: 0.8em; /* Fonte ainda menor */
     cursor: pointer;
     user-select: none;
     position: relative;
+    height: 10%; /* Tenta forçar o cabeçalho a ocupar menos espaço */
 }
 
 .cartela-exemplo th::after {
@@ -319,6 +323,7 @@ body {
 
 .cartela-exemplo tbody {
     display: table-row-group;
+    height: 90%; /* Tenta forçar o corpo a ocupar o restante */
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-in-out, opacity 0.3s;
@@ -337,11 +342,12 @@ body {
 
 .cartela-celula {
     border: 1px solid var(--cor-borda);
-    padding: 2px; /* CRÍTICO: Padding vertical e horizontal reduzido */
+    padding: 1px; /* CRÍTICO: Padding vertical e horizontal no MÍNIMO */
     text-align: center;
     cursor: pointer;
-    font-size: 0.9em; 
+    font-size: 0.8em; /* Fonte no MÍNIMO */
     font-weight: bold;
+    height: 20%; /* Tenta dividir a altura do tbody (90%/5 = 18%, arredonda para 20%) */
     background-color: var(--cor-fundo-escuro);
     color: var(--cor-texto-escuro);
     transition: all 0.2s;
