@@ -170,8 +170,8 @@ body {
     cursor: pointer;
     text-transform: uppercase;
     font-weight: bold;
-    transition: all 0.3s;
     font-size: 0.9em;
+    transition: all 0.3s;
 }
 
 .btn-control:disabled {
@@ -286,8 +286,8 @@ body {
 }
 
 .cartela-exemplo {
-    /* CRÍTICO: Redução extrema da largura */
-    width: 160px; /* Reduzido de 200px para 160px */
+    /* Largura mantida (160px) */
+    width: 160px; 
     max-width: 100%;
     margin: 0;
     border: 3px solid var(--cor-borda);
@@ -302,8 +302,8 @@ body {
 .cartela-exemplo th {
     background-color: var(--cor-principal);
     color: var(--cor-texto-claro);
-    padding: 5px 0; /* Padding reduzido */
-    font-size: 0.9em; /* Fonte reduzida */
+    padding: 3px 0; /* CRÍTICO: Padding vertical do cabeçalho reduzido */
+    font-size: 0.9em; 
     cursor: pointer;
     user-select: none;
     position: relative;
@@ -312,9 +312,9 @@ body {
 .cartela-exemplo th::after {
     content: '▼';
     position: absolute;
-    right: 5px; /* Posição ajustada */
+    right: 5px; 
     transition: transform 0.3s;
-    font-size: 0.7em; /* Fonte do ícone reduzida */
+    font-size: 0.7em; 
 }
 
 .cartela-exemplo tbody {
@@ -337,10 +337,10 @@ body {
 
 .cartela-celula {
     border: 1px solid var(--cor-borda);
-    padding: 4px; /* CRÍTICO: Padding interno reduzido */
+    padding: 2px; /* CRÍTICO: Padding vertical e horizontal reduzido */
     text-align: center;
     cursor: pointer;
-    font-size: 0.9em; /* CRÍTICO: Tamanho da fonte reduzido */
+    font-size: 0.9em; 
     font-weight: bold;
     background-color: var(--cor-fundo-escuro);
     color: var(--cor-texto-escuro);
