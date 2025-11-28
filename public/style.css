@@ -286,12 +286,9 @@ body {
 }
 
 .cartela-exemplo {
-    /* Largura definida para a proporção quadrada */
-    width: 160px; 
+    /* Largura aumentada minimamente (160px -> 180px) */
+    width: 180px; 
     max-width: 100%;
-    /* Altura definida para tentar forçar o quadrado (160px) */
-    height: 160px; /* CRÍTICO: Força a altura */
-    table-layout: fixed; /* Ajuda a distribuir o espaço uniformemente */
     margin: 0;
     border: 3px solid var(--cor-borda);
     border-radius: 10px;
@@ -300,17 +297,20 @@ body {
     background-color: var(--cor-fundo-claro);
     border-collapse: collapse;
     transition: all 0.3s ease-in-out;
+    /* Altura ajustada para manter o quadrado (160px -> 180px) */
+    height: 180px; 
+    table-layout: fixed; 
 }
 
 .cartela-exemplo th {
     background-color: var(--cor-principal);
     color: var(--cor-texto-claro);
-    padding: 2px 0; /* Padding vertical do cabeçalho MÍNIMO */
-    font-size: 0.8em; /* Fonte ainda menor */
+    padding: 3px 0; /* Padding vertical do cabeçalho levemente aumentado (2px -> 3px) */
+    font-size: 0.9em; /* Fonte levemente aumentada (0.8em -> 0.9em) */
     cursor: pointer;
     user-select: none;
     position: relative;
-    height: 10%; /* Tenta forçar o cabeçalho a ocupar menos espaço */
+    height: 10%; 
 }
 
 .cartela-exemplo th::after {
@@ -323,7 +323,7 @@ body {
 
 .cartela-exemplo tbody {
     display: table-row-group;
-    height: 90%; /* Tenta forçar o corpo a ocupar o restante */
+    height: 90%; 
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-in-out, opacity 0.3s;
@@ -342,12 +342,12 @@ body {
 
 .cartela-celula {
     border: 1px solid var(--cor-borda);
-    padding: 1px; /* CRÍTICO: Padding vertical e horizontal no MÍNIMO */
+    padding: 2px; /* Padding vertical e horizontal levemente aumentado (1px -> 2px) */
     text-align: center;
     cursor: pointer;
-    font-size: 0.8em; /* Fonte no MÍNIMO */
+    font-size: 0.9em; /* Fonte levemente aumentada (0.8em -> 0.9em) */
     font-weight: bold;
-    height: 20%; /* Tenta dividir a altura do tbody (90%/5 = 18%, arredonda para 20%) */
+    height: 20%; 
     background-color: var(--cor-fundo-escuro);
     color: var(--cor-texto-escuro);
     transition: all 0.2s;
