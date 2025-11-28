@@ -143,9 +143,9 @@ function iniciarSorteioAutomatico(io, salaID) {
 
     sala.intervaloDeSorteio = setInterval(() => {
         sortearProximoNumero(io, salaID);
-    }, 8000);
+    }, 5000);
 
-    io.to(salaID).emit('avisoTimer', "Sorteio automático iniciado. Novo número a cada 8 segundos.");
+    io.to(salaID).emit('avisoTimer', "Sorteio automático iniciado. Novo número a cada 5 segundos.");
 }
 
 function pausarSorteio(io, salaID) {
