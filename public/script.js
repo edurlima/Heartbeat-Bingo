@@ -18,7 +18,7 @@ class SorteadorBingo {
     }
 
     get qtdNumeros() { return this.#qtdNumeros; }
-    get qtdBolinhasSorteadas() { return this.#qtdBolinhasSorteadas; }
+    get qtdBolinhasSorteadas() { return this.#qtdBolinhasSortadas; }
     
     set bolinhasSortadas(novasBolinhas) { 
         this.#bolinhasSortadas = novasBolinhas;
@@ -105,13 +105,14 @@ class SorteadorBingoBrasileiro extends SorteadorBingo {
         return cartela;
     }
     
-    static montarCartelaHTML(cartelaData, id) { 
+    static montarCartelaHTML(cartelaData, id, estaFechada = false) { 
         const letras = ['B', 'I', 'N', 'G', 'O'];
+        const classeFechada = estaFechada ? 'fechada' : '';
         
-        let html = `<table class="cartela-exemplo" id="${id}" data-cartela-data='${JSON.stringify(cartelaData)}'>`; 
+        let html = `<table class="cartela-exemplo ${classeFechada}" id="${id}" data-cartela-data='${JSON.stringify(cartelaData)}'>`; 
         
         html += '<thead><tr>';
-        letras.forEach(letra => { html += `<th>${letra}</th>`; });
+        letras.forEach(letra => { html += `<th onclick="toggleCartela('${id}')">${letra}</th>`; });
         html += '</tr></thead>';
         
         html += '<tbody>';
@@ -210,7 +211,7 @@ let sorteioPausado = false;
 const bingo = new SorteadorBingoBrasileiro();
 const ID_PRIMEIRA_CARTELA = "cartela-exemplo-id"; 
 const BINGO_CARTELA_DATA = SorteadorBingoBrasileiro.gerarCartela(null); 
-const CARTELA_EXEMPLO = SorteadorBingoBrasileiro.montarCartelaHTML(BINGO_CARTELA_DATA, ID_PRIMEIRA_CARTELA); 
+const CARTELA_EXEMPLO = SorteadorBingoBrasileiro.montarCartelaHTML(BINGO_CARTELA_DATA, ID_PRIMEIRA_CARTELA, false); 
 
 let btnIniciarSorteioTimer = null; 
 let btnReiniciar = null; 
@@ -305,6 +306,13 @@ window.toggleMarcacao = function(cellElement) {
     }
 }
 
+window.toggleCartela = function(idCartela) {
+    const cartelaElemento = document.getElementById(idCartela);
+    if (cartelaElemento) {
+        cartelaElemento.classList.toggle('fechada');
+    }
+}
+
 
 function renderizarPlacarSorteio(colunas) {
     const CONTAINER_PLACARES = document.getElementById('placar-sorteio'); 
@@ -349,7 +357,7 @@ function marcarECarregarCartela(cartelaElemento) {
     if (cartelaElemento.id === ID_PRIMEIRA_CARTELA) {
         const cartelaDataStr = cartelaElemento.getAttribute('data-cartela-data');
         if (!cartelaDataStr) return;
-        const cartelaData = JSON.parse(cartelaDataStr);
+        const cartelaData = JSON.ONLY_parse(cartelaDataStr);
         
         const resultadoVitoria = SorteadorBingoBrasileiro.verificarVitoria(bingo, cartelaData, bingo.bolinhasSortadas);
         
@@ -447,7 +455,8 @@ function adicionarNovaCartela() {
     const novoID = `cartela-${cartelaCounter}-id`;
     
     const novaCartelaData = SorteadorBingoBrasileiro.gerarCartela(null);
-    const novaCartelaHTML = SorteadorBingoBrasileiro.montarCartelaHTML(novaCartelaData, novoID); 
+    // CRÍTICO: Nova cartela é adicionada FECHADA (true)
+    const novaCartelaHTML = SorteadorBingoBrasileiro.montarCartelaHTML(novaCartelaData, novoID, true); 
     
     if (cartelasAgrupadasDiv) {
         cartelasAgrupadasDiv.insertAdjacentHTML('beforeend', novaCartelaHTML);
@@ -531,7 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
             COLUNAS_SORTEIO[letra].push(num);
         });
 
-        cartelasAgrupadasDiv.innerHTML = SorteadorBingoBrasileiro.montarCartelaHTML(BINGO_CARTELA_DATA, ID_PRIMEIRA_CARTELA); 
+        // CRÍTICO: Recarrega a cartela principal (sempre aberta por padrão)
+        cartelasAgrupadasDiv.querySelector('#' + ID_PRIMEIRA_CARTELA).outerHTML = SorteadorBingoBrasileiro.montarCartelaHTML(BINGO_CARTELA_DATA, ID_PRIMEIRA_CARTELA, false);
         
         renderPlacar();
         renderizarTodasCartelas(); 
