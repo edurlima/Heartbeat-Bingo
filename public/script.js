@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnIniciarSorteioTimer.addEventListener('click', () => {
             socket.emit('iniciarSorteioAutomatico'); 
             btnIniciarSorteioTimer.disabled = true; 
-            mostrarNotificacao("⏳ Sorteio de 8s iniciado! Marque sua cartela.", 'quina');
+            mostrarNotificacao("⏳ Sorteio de 5s iniciado! Marque sua cartela.", 'quina');
         });
     }
 
